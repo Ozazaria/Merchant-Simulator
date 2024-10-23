@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f4f4f4;
+        }
+        /* Slider container */
+        .slider-container {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .slider-container label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+        }
+        .slider-container input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, #42a5f5, #66bb6a);
+            outline: none;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        .slider-value-container {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 2px solid #42a5f5;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        /* Loader styles */
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #8B6CF7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Container for Overall Deployed Budget */
+        .budget-container {
+            position: relative;
+            padding: 20px;
+            background-color: #f0f4ff;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .budget-number {
+            font-size: 2.5rem;
+            color: #8B6CF7;
+            font-weight: bold;
+        }
+        .info-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #42a5f5;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        /* Tooltip styles */
+        .tooltip {
+            display: none;
+            position: absolute;
+            top: -5px;
+            right: 40px;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+        .tooltip.visible {
+            display: block;
+        }
+        /* Button to toggle sales forecast */
+        .sales-impact-btn, .start-hooxing-btn {
+            width: 48%; /* Adjust width to be side by side */
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .sales-impact-btn {
+            background-color: #bdbdbd;
+            color: white;
+        }
+        .start-hooxing-btn {
+            background-color: #8B6CF7;
+            color: white;
+        }
+        /* Side by side button container */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 4%;
+        }
+        .sales-impact-section {
+            display: none;
+            margin-top: 20px;
+        }
+        /* Sales Impact Section showing only CRV, AOV and Uplift */
+        .sales-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .sales-box {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .sales-box h3 {
+            margin: 0;
+            color: #555;
+            font-size: 1.2rem;
+        }
+        .sales-box p {
+            margin-top: 10px;
+            font-size: 1.8rem;
+            color: #8B6CF7;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Merchant Simulator</h2>
+
+    <!-- Input Fields -->
+    <div class="input-group">
+        <label for="traffic">Monthly Traffic:</label>
+        <input type="text" id="traffic" value="0" oninput="formatNumber(this); handleInputChange()" pattern="[0-9,]*" placeholder="Enter monthly traffic">
+    </div>
+
+    <div class="input-group">
+        <label for="industry">Industry:</label>
+        <select id="industry" onchange="handleInputChange()">
+            <option value="general">General (E-commerce)</option>
+            <option value="apparel">Apparel & Fashion</option>
+            <option value="health">Health & Beauty</option>
+            <option value="electronics">Electronics</option>
+            <option value="food">Food & Beverage</option>
+            <option value="home">Home Goods</option>
+            <option value="luxury">Luxury & Jewelry</option>
+            <option value="pet">Pet Care</option>
+        </select>
+    </div>
+
+    <!-- Sliders Section -->
+    <div class="slider-container">
+        <label for="avgDiscount">Avg Discount (%)</label>
+        <input type="range" id="avgDiscount" min="3" max="20" value="13.8" step="0.1" oninput="document.getElementById('avgDiscountValue').innerText = this.value + '%'; handleInputChange()">
+        <div class="slider-value-container">Avg Discount: <span id="avgDiscountValue">13.8%</span></div>
+    </div>
+
+    <div class="slider-container">
+        <label for="avgConversion">Average Conversion (%)</label>
+        <input type="range" id="avgConversion" min="1.4" max="3.4" value="2.4" step="0.1" oninput="document.getElementById('avgConversionValue').innerText = this.value + '%'; handleInputChange()">
+        <div class="slider-value-container">Avg Conversion: <span id="avgConversionValue">2.4%</span></div>
+    </div>
+
+    <div class="slider-container">
+        <label for="avgOrder">Average Order ($)</label>
+        <input type="range" id="avgOrder" min="30" max="185" value="115" step="1" oninput="document.getElementById('avgOrderValue').innerText = '$' + this.value; handleInputChange()">
+        <div class="slider-value-container">Avg Order: <span id="avgOrderValue">$115</span></div>
+    </div>
+
+    <!-- Loader and Budget/Buttons Container -->
+    <div id="loaderContainer" class="budget-container">
+        <!-- Loader (Hidden initially) -->
+        <div id="loader" class="loader"></div>
+        <!-- Deployed Budget and Buttons (Hidden initially, shown after loader) -->
+        <div id="deployedBudgetContent" style="display: none;">
+            <p>Overall Issuers Deployed Budget</p>
+            <p class="budget-number" id="growthAmount">$0</p>
+            <!-- Tooltip -->
+            <div class="tooltip" id="tooltip">
+                <p>Offers are funded by card issuers that would like to secure their card is in use</p>
+                <p>Number of Offers: 5,000</p>
+                <p>Avg Discount: 7.8%</p>
+            </div>
+            <!-- Buttons -->
+            <div class="button-container">
+                <button class="sales-impact-btn" onclick="toggleSalesImpact()">Sales Impact Forecast</button>
+                <button class="start-hooxing-btn">Start Hooxing</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Impact Section (Hidden initially) -->
+    <div class="sales-impact-section" id="salesImpactSection">
+        <!-- Sales Impact Section showing only CRV, AOV and Uplift -->
+        <div class="sales-section">
+            <div class="sales-box">
+                <h3>Conversion Uplift</h3>
+                <p id="conversionUplift">+7.8%</p>
+            </div>
+            <div class="sales-box">
+                <h3>AOV Uplift</h3>
+                <p id="aovUplift">+2.5%</p>
+            </div>
+            <div class="sales-box">
+                <h3>Sales Uplift</h3>
+                <p id="uplift">$0</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let fieldsEdited = {
+        traffic: false,
+        industry: false,
+        avgDiscount: false,
+        avgConversion: false,
+        avgOrder: false
+    };
+
+    // Function to handle input changes and trigger loader after all fields are edited
+    function handleInputChange() {
+        const trafficValue = parseInt(document.getElementById('traffic').value.replace(/,/g, '')) || 0;
+
+        // Only proceed if traffic value is greater than or equal to 100000
+        if (trafficValue >= 100000) {
+            // Mark the corresponding field as edited
+            if (document.getElementById('traffic').value && trafficValue >= 100000) fieldsEdited.traffic = true;
+            if (document.getElementById('industry').value) fieldsEdited.industry = true;
+            if (document.getElementById('avgDiscount').value) fieldsEdited.avgDiscount = true;
+            if (document.getElementById('avgConversion').value) fieldsEdited.avgConversion = true;
+            if (document.getElementById('avgOrder').value) fieldsEdited.avgOrder = true;
+
+            // Check if all fields have been edited
+            if (Object.values(fieldsEdited).every(Boolean)) {
+                const loader = document.getElementById('loader');
+                const deployedContent = document.getElementById('deployedBudgetContent');
+                loader.style.display = 'block';
+                deployedContent.style.display = 'none';
+
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    deployedContent.style.display = 'block';
+                    updateValues();
+                }, 2000);
+            }
+        }
+    }
+
+    // Function to format the traffic input with commas
+    function formatNumber(input) {
+        let value = input.value.replace(/,/g, ''); // Remove existing commas
+        if (!isNaN(value) && value !== '') {
+            input.value = parseInt(value, 10).toLocaleString(); // Add commas back
+        }
+    }
+
+    // Function to toggle the sales impact section
+    function toggleSalesImpact() {
+        const salesImpact = document.getElementById('salesImpactSection');
+        salesImpact.style.display = salesImpact.style.display === 'none' || !salesImpact.style.display ? 'block' : 'none';
+    }
+
+    // Function to update the Hoox values and sales impact
+    function updateValues() {
+        const randomBudget = Math.floor(Math.random() * (60000 - 15000 + 1)) + 15000;
+        document.getElementById('growthAmount').innerText = `$${randomBudget.toLocaleString()}`;
+
+        document.getElementById('uplift').innerText = `$${randomBudget.toLocaleString()}`;
+        document.getElementById('conversionUplift').innerText = '+7.8%';
+        document.getElementById('aovUplift').innerText = '+2.5%';
+    }
+</script>
+
+</body>
+</html>
