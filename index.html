@@ -88,7 +88,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Container for Overall Deployed Budget */
+        /* Container for Overall Issuers Deployed Budget */
         .budget-container {
             position: relative;
             padding: 20px;
@@ -98,10 +98,19 @@
             text-align: center;
             box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
         }
+        .budget-text {
+            font-size: 1.2rem;
+            color: #555;
+            font-weight: bold;
+        }
         .budget-number {
-            font-size: 2.5rem;
+            font-size: 3.5rem; /* Increased font size for annual budget */
             color: #8B6CF7;
             font-weight: bold;
+        }
+        .small-text {
+            font-size: 1rem;
+            color: #777;
         }
         .info-icon {
             position: absolute;
@@ -152,23 +161,29 @@
             justify-content: space-between;
             gap: 4%;
         }
+        /* Mobile responsive for sales impact */
         .sales-impact-section {
             display: none;
             margin-top: 20px;
         }
-        /* Sales Impact Section showing only CRV, AOV and Uplift */
         .sales-section {
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
             gap: 15px;
         }
         .sales-box {
-            flex: 1;
+            flex: 1 1 100%; /* Full width on mobile */
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+        @media(min-width: 600px) {
+            .sales-box {
+                flex: 1 1 30%; /* 3 boxes side by side on wider screens */
+            }
         }
         .sales-box h3 {
             margin: 0;
@@ -180,6 +195,46 @@
             font-size: 1.8rem;
             color: #8B6CF7;
             font-weight: bold;
+        }
+        /* Popup styles */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
+            z-index: 1002;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .popup input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .popup button {
+            width: 100%;
+            padding: 10px;
+            background-color: #8B6CF7;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -233,8 +288,9 @@
         <div id="loader" class="loader"></div>
         <!-- Deployed Budget and Buttons (Hidden initially, shown after loader) -->
         <div id="deployedBudgetContent" style="display: none;">
-            <p>Overall Issuers Deployed Budget</p>
-            <p class="budget-number" id="growthAmount">$0</p>
+            <span class="info-icon" onclick="toggleTooltip()">ℹ️</span>
+            <p class="budget-text">Estimated annual budget we will deploy from card issuers:</p>
+            <p class="budget-number" id="annualBudgetResult"></p>
             <!-- Tooltip -->
             <div class="tooltip" id="tooltip">
                 <p>Offers are funded by card issuers that would like to secure their card is in use</p>
@@ -244,7 +300,7 @@
             <!-- Buttons -->
             <div class="button-container">
                 <button class="sales-impact-btn" onclick="toggleSalesImpact()">Sales Impact Forecast</button>
-                <button class="start-hooxing-btn">Start Hooxing</button>
+                <button class="start-hooxing-btn" onclick="openPopup()">Start Hooxing</button>
             </div>
         </div>
     </div>
@@ -266,6 +322,16 @@
                 <p id="uplift">$0</p>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Popup for Start Hooxing -->
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup">
+        <h3>Enter Details to Start Hooxing</h3>
+        <input type="text" id="website" placeholder="Website Address">
+        <input type="email" id="email" placeholder="Business Email Address">
+        <button onclick="closePopup()">Submit</button>
     </div>
 </div>
 
@@ -323,12 +389,29 @@
 
     // Function to update the Hoox values and sales impact
     function updateValues() {
-        const randomBudget = Math.floor(Math.random() * (60000 - 15000 + 1)) + 15000;
-        document.getElementById('growthAmount').innerText = `$${randomBudget.toLocaleString()}`;
+        const randomBudget = Math.floor(Math.random() * (600000 - 150000 + 1)) + 150000; // Higher random range for per month
+        const annualBudget = randomBudget * 12;
+        document.getElementById('annualBudgetResult').innerHTML = `$${annualBudget.toLocaleString()} <span class="small-text">($${randomBudget.toLocaleString()} per month)</span>`;
 
         document.getElementById('uplift').innerText = `$${randomBudget.toLocaleString()}`;
         document.getElementById('conversionUplift').innerText = '+7.8%';
         document.getElementById('aovUplift').innerText = '+2.5%';
+    }
+
+    // Function to toggle the tooltip
+    function toggleTooltip() {
+        const tooltip = document.getElementById('tooltip');
+        tooltip.classList.toggle('visible');
+    }
+
+    // Function to open the popup for "Start Hooxing"
+    function openPopup() {
+        document.getElementById('popupOverlay').style.display = 'block';
+    }
+
+    // Function to close the popup
+    function closePopup() {
+        document.getElementById('popupOverlay').style.display = 'none';
     }
 </script>
 
