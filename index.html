@@ -389,7 +389,7 @@
 
     // Function to update the Hoox values and sales impact
     function updateValues() {
-        const randomBudget = Math.floor(Math.random() * (600000 - 150000 + 1)) + 150000; // Higher random range for per month
+        const randomBudget = Math.floor(Math.random() * (60000 - 15000 + 1)) + 15000; // Higher random range for per month
         const annualBudget = randomBudget * 12;
         document.getElementById('annualBudgetResult').innerHTML = `$${annualBudget.toLocaleString()} <span class="small-text">($${randomBudget.toLocaleString()} per month)</span>`;
 
